@@ -1,0 +1,108 @@
+ng-app:	定义一个AngularJS应用程序
+ng-model: 把元素值绑定到应用程序
+	(1)绑定HTML元素到应用程序
+	(2)a.为应用程序数据提供类型验证(number,email,required)
+	   b.为应用程序数据提供状态(invalid,dirty,touched,error)
+	   c.为HTML元素提供CSS类
+		[ng-empty,ng-not-empty,ng-touched,ng-untouched,ng-valid,ng-invalid,ng-dirty,ng-pending,ng-pristine]
+	   d.绑定HTML元素到HTML表单
+
+ng-bind: 把应用程序数据绑定到HTML视图
+ng-controller:
+ng-init:
+ng-repeat:	ng-repeat="x in names"
+
+
+
+AngularJS表达式与JavaScript表达式：
+类似于JavaScript表达式，AngularJS表达式可以包含字母，操作符，变量。
+与JavaScript表达式不同，AngularJS表达式可以写在HTML中。
+与JavaScript表达式不同，AngularJS表达式不支持条件判断，循环及异常。
+与JavaScript表达式不同，AngularJS表达式支持过滤器。
+
+创建自定义指令：
+可以使用.directive函数添加自定义指令。
+要调用自定义指令，HTML元素上需要添加自定义指令名。
+使用驼峰法命名一个指令，runoobDirective，但使用时，要以-分割，runoob-directive
+var app = angular.module("myApp", []);
+app.directive("runoobDirective", function(){
+	return {
+		restrict : "A",
+		template : "<h1>自定义指令！</h1>"
+	}
+});
+restrict值选项：
+E:只限元素名使用
+A:只限属性使用
+C:只限类名使用
+M:只限注释使用
+默认为EA
+
+AngularJS应用组成如下：
+(1)View,即HTML。
+(2)Model,当前视图中可用的数据。
+(3)Controller,即JavaScript函数，可以添加或修改属性。
+
+AngularJS过滤器：通过管道符(|)和一个过滤器添加到表达式中
+currency:格式化数字为货币格式
+filter:从数组项中选择一个子集
+lowercase:格式化字符串为小写
+orderBy:根据某个表达式排列数组
+uppercase:格式化字符串为大写
+
+AngularJS服务：服务是一个对象或函数，可在AngularJS应用中使用。
+内建服务：
+(1)$location	->window.location
+(2)$http	->向服务器发送请求，处理响应
+(3)$imeout	->window.setTimeout
+(4)$interval	->window.setInterval
+自定义服务：
+app.service("myService", function(){
+	this.myFunc = function(x) {
+		return x.toString(16);
+	}
+});
+
+AngularJS表格：
+$index:
+$odd:
+$even:
+
+AngularJS HTML DOM:
+ng-disabled	->disabled
+ng-show		->显示或隐藏HTML元素
+ng-hide		->隐藏或显示HTML元素
+
+AngularJS 事件：
+ng-click	->点击事件
+ng-dbl-click
+ng-mousedown
+ng-mouseup
+ng-mouseenter
+ng-mouseleave
+ng-mousemove
+ng-mouseover
+ng-keydown
+ng-keyup
+ng-keypress
+ng-change
+
+AngularJS模块：
+
+AngularJS表单：
+HTML控件
+(1)input
+(2)select
+(3)button
+(4)textarea
+var v1 = angular.copy(v2);
+
+AngularJS填写验证：
+novalidate 禁止浏览器默认验证
+$dirty:	表单有填写记录
+$valid:	字段内容合法
+$invalid: 字段内容非法
+$pristine: 表单没有填写记录
+
+AngularJS页面嵌入
+ng-include
