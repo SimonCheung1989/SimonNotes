@@ -37,4 +37,4 @@ _斜体 斜体_
 [^注释]:怎么解释
 
 
-1. [Gith学习笔记](git/readme.md)
+[1. Gith学习笔记](git/readme.md)
