@@ -1,0 +1,59 @@
+cf command
+1.cf apps
+	查看应用信息
+
+2.cf delete APP_NAME
+	删除应用
+
+3.cf set-env APP_NAME ENV_KEY ENV_VALUE
+	设置环境变量
+
+4.cf cups SERVICE_NAME -p "host, prot, dbname, username, password"
+	创建服务
+	
+5.cf login
+	登陆
+
+6.cf push -f MINFETFILE_PATH
+	根据MINFET文件发布应用
+	
+7.cf env APP_NAME
+	显示应用的所有环境变量
+	
+8.cf app APP_NAME
+	显示应用状态
+
+9.cf start APP_NAME
+	启动应用
+	
+10.cf stop APP_NAME
+	停止应用
+	
+11.cf restart APP_NAME
+	重启应用
+	
+12.cf restage APP_NAME
+	重新编译打包应用
+	
+13.cf stack STACK_NAME
+	显示堆栈信息
+
+14.cf stacks
+	列出所有堆栈
+	
+15.cf create-app-manifest APP_NAME [-p path]
+	为已经成功推送的应用创建应用程序清单
+	
+16.cf enable-ssh APP_NAME
+	启用ssh连接
+	
+17.cf ssh APP_NAME
+	通过ssh连接应用
+	
+18.远程调试
+	(1)yml添加配置
+	env:
+		JBP_CONFIG_DEBUG: '{enabled: true}'
+	(2)cf push -f *.yml
+	(3)cf ssh -N -T -L 8000:localhost:8000 <APP_NAME>
+	(4)配置Eclipse远程debug
