@@ -1,0 +1,8 @@
+--察看证书信息
+keytool -list -v -keystore C:\Users\43957841\Downloads\20161031\buildpack\cacerts -storepass changeit
+
+--导入证书
+keytool -import -keystore "C:\Users\43957841\Downloads\20161031\buildpack\cacerts"  -storepass changeit -keypass adcertpass -alias ldapcert -file "C:\Users\43957841\Downloads\20161031\buildpack\ldapcert.cer"
+
+--删除证书
+keytool -delete -alias ldapcert -keystore "C:\Users\43957841\Downloads\20161031\buildpack\cacerts" -storepass changeit
