@@ -6,3 +6,6 @@
 
 2.Sonar
 <!—设置模块的IDS --> <property name="sonar.modules" value="module-one,module-two"/> <!—各模块的配置可以继承父配置--> <property name="module-one.sonar.projectName" value="Module One" /> <property name="module-one.sonar.sources" value="sources/java" /> <property name="module-one.sonar.binaries" value="target" /> <!—默认分析根路径<curent_directory>/<module_ID> --> <property name="module-one.sonar.projectBaseDir" value="Module 1" />
+
+
+http://www.yyyweb.com/ctools/download.php?target=http%3A%2F%2Fwww.yyyweb.com%2Fdemo%2Fpage-transitions%2Fpage-transitions.rar
