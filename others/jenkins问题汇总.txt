@@ -3,3 +3,6 @@
   (2)日程表为cron表达式，有些Jenkins版本会使用 H(Hash), 生成随即时间，消除请求尖峰
      H 14 * * *: 每天14点随即分钟执行
      H(0-0) 14 * * *: 每天14点整执行
+
+2.Sonar
+<!—设置模块的IDS --> <property name="sonar.modules" value="module-one,module-two"/> <!—各模块的配置可以继承父配置--> <property name="module-one.sonar.projectName" value="Module One" /> <property name="module-one.sonar.sources" value="sources/java" /> <property name="module-one.sonar.binaries" value="target" /> <!—默认分析根路径<curent_directory>/<module_ID> --> <property name="module-one.sonar.projectBaseDir" value="Module 1" />
