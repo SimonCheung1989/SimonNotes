@@ -1,0 +1,15 @@
+--分离分区
+alter table T_LOGGING split partition other values ('ca') into (partition CA ,partition other);
+--合并分区
+alter table T_LOGGING merge partitions other,CA into partition other;
+--查询分区信息
+select partition_name, num_rows from user_tab_partitions where table_name='T_LOGGING';
+--重建索引(更改发分区信息后 需要执行)
+ALTER INDEX T_LOGGING_PK1 rebuild;
+--全表分析
+analyze table T_LOGGING compute statistics;
+--赋权
+grant execute on SMP_UK_UAT.LOGONUSER_ROW to SMP_UK_UAT_APPUSER;
+--创建同义词
+CREATE SYNONYM SMP_UK_UAT_APPUSER.LOGONUSER_ROW
+   FOR SMP_UK_UAT.LOGONUSER_ROW;
