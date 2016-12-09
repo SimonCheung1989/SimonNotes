@@ -11,4 +11,16 @@
   (5)Ctrl+F 查找文本
   (6)Ctrl+R 替换文本
   (7)Ctrl+Alt+S 打开project settings
+  (8)Ctrl+E 最近打开的文件
+  (9)Ctrl+Shift+E 最近编辑的文件
+  (10)Shift+Click 关闭文件
+  (11)Ctrl+[|] 光标定位到{|}开头或结尾
+  (12)Ctrl+F12 显示当前文件结构
+  (13)Ctrl+F7 查找当前元素在当前文件的引用
+  (14)Ctrl+P 显示参数信息
+  (15)Alt+Insert 自动生成构造方法/Get/Set方法
+  (16)Alt+Enter 自动导入包
+  (17)Ctrl+Alt+O 优化导入包
+  (18)Ctrl+Shift+Space 自动补全代码
   
+  
