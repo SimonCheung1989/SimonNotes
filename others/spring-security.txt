@@ -1,16 +1,19 @@
-1.Spring Security 如何判断用户有没有登陆
-  (1)SessionManagementFilter 会判断用户是不是匿名
-      --如果不满足
-          --安全级别则调用AuthenticationEntryPoint的commence方法，将请求重定向到失败页面
-      --如果满足
+1.Spring Security 如何判断用户有没有登陆  
+  (1)没有登陆访问受限资源 
+      --SessionManagementFilter会判断session是否存在SPRING_SECURITY_CONTEXT_KEY(未登陆后则不存在)
+      --权限验证通过失败则调用AuthenticationEntryPoint的commence方法，将请求重定向到失败页面
+  (2)登陆
+      --SessionManagementFilter
           --进入 AbstractAuthenticationProcessingFilter的attemptAuthentication 方法开始组装Authentication对象进行权限验证
              --进入 AuthenticationManager 的 authenticate 方法进行权限验证 
                 --AuthenticationManager循环调用AuthenticationProvider的authenticate方法
                   --AuthenticationProvider调用retrieveUser方法查找数据库中的用户
                   --AuthenticationProvider调用additionalAuthenticationChecks方法，进行验证 
                   --如果用户不在cache里，则cache用户(UserDetails)
-                  
-                    
+   (3)登陆后再次访问受限资源
+        --SessionManagementFilter会判断session是否存在SPRING_SECURITY_CONTEXT_KEY(登陆后则存在)
+          --权限验证通过，正确返回资源
+                   
           
       
   
