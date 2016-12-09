@@ -22,5 +22,20 @@
   (16)Alt+Enter 自动导入包
   (17)Ctrl+Alt+O 优化导入包
   (18)Ctrl+Shift+Space 自动补全代码
-  
+  (19)Ctrl+Shift+Alt+N 查找类中的方法或变量
+  (20)Alt+Shift+C 最近的更改
+  (21)Ctrl+X 删除行
+  (22)Ctrl+D 复制行
+  (22)Ctrl+/ 行注释
+  (23)Ctrl+Shift+/ 块注释
+  (24)Alt+Left/Right 光标回到上次浏览
+  (25)Tab 输入代码开头后自动完成代码
+  (26)Ctrl+Y 删除当前行
+  (27)Ctrl+Shift+Backspace 返回上次编辑的地方
+  (28)Ctrl+Shift+U 大小写转换
+  (29)Ctrl+Shift+F 全局查找
+  (30)Ctrl+U 跳转到父类或接口
+  (31)Ctrl+G 行定位
+  (32)Ctrl++|- 当前方法折叠或打开
+  (33)Ctrl+Shift++|- 全部方法打开或折叠
   
