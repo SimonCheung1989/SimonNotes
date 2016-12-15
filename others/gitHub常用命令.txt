@@ -1,0 +1,2 @@
+1.当git pull出现fatal: refusing to merge unrelated histories时
+  使用:--allow-unrelated-histories
