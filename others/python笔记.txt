@@ -52,11 +52,29 @@ md5
 更多的模块，可以参考python自带的 doc\python.chm的章节library reference
 学习模块的最好方法就是进入到python的交互shell中，然后尝试
    
-  
+6.文件操作 
+open(文件名[, mode]) 返回一个文件对象
+mode:
+  "r",  读模式
+  "w",  写模式
+  "r+", 读写模式
+文件对象的方法 
+  file.read(size) 读取文件的size个字节，返回一个string对象，如果没有设置size,则读取整个文件
+  file.readLine() 读取一行，返回一个string对象，如果返回的内容为空，则说明文件结束Eof
+  file.readlines()  读取所有行，返回一个list
+  file.write(buffer)  写buffer的内容到文件中
+  file.flush()  强制写入缓冲区的内容到文件
+  file.seek(offset[, flag]) 定位文件读写的光标
+    offset  偏移量
+    flag  标志：   os.SEEK_SET or 0  从文件头算起，缺省方式
+                  os.SEEK_CUR or 1  从当前位置算起
+                  os.SEEK_END or 2  从结束处算起
+  file.close()  关闭文件
+文件属性：
+  file.name 文件名
+  file.mode 文件打开的模式
   
-  
-  
-  
+7.数据库编程  
   
   
   
