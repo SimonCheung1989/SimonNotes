@@ -74,7 +74,33 @@ mode:
   file.name 文件名
   file.mode 文件打开的模式
   
-7.数据库编程  
+7.数据库编程：python的DB-API和java的JDBC类似，都是一个规范，定义了python中如何操作数据库的数据，然后由不同的数据库去实现不同的模块(jdbc里叫驱动)
+  conect(参数1, 参数2, 参数3...)用来连接数据库，返回一个数据库连接对象Connection
+  Connection对象 
+    close() 关闭与数据库的连接，如果有数据没有提交，这部分数据就撤销掉
+    commit()  提交该连接的所有没有提交的事务，如果数据库支持自动提交，那么最初应该是关掉这个功能的，数据库模块可以提供方法来打开自动提交功能
+    rollback()  撤销该连接的事务
+    cursor()  返回一个数据库游标，用来执行具体的数据库操作
+  Cursor对象
+    description 只读属性，用来描述游标
+    close() 关闭游标
+    execute(sql[,参数])预编译或者执行一个sql(查询或者dml,ddl)如果是预编译，则需要提供一个序列活字典去绑定sql中的变量
+    executemany(sql, obj) 预编译一个sql(dml),并且执行它，它关联的所有参数序列或者字典在序列obj中
+    fetchone()  取下一行记录，如果为Nnne则表示记录已经读取完了
+    fetchall()  读取所有记录
+    arraysize 可读写属性，用来设置fetchmany()读取记录行数，缺省为1
+    fetchmany(size) 读取size条记录，如果没有size就以.arraysize的设置为准，如果有size, .arraysize就等于size
+    setinputsize(sizes) 设置输入大小，用来处理blob等大字段，用在execute或executemany前面
+    setoutputsize(size[, column]) 设置输出大小，用来处理blob等大字段，用在execute或executemany前面
+    
+8.oracle(cx_Oracle): cx_Oracle是python的oracle模块，使用前需要安装oracle的instantclient
+  连接数据库代码
+    >>>import cx_Oracle
+    >>>conn = cx_Oracle.connect('gjw/gjw@133.13.11.102:1521/OCL')
+    >>>
+  
+
+
   
   
   
