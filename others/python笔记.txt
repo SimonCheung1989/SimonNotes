@@ -101,6 +101,12 @@ mode:
     >>>import cx_Oracle
     >>>conn = cx_Oracle.connect('gjw/gjw@133.13.11.102:1521/OCL')
     >>>
+    
+9.占位符
+  %d	整数
+  %f	浮点数
+  %s	字符串
+  %x	十六进制整数
   
 
 
