@@ -34,6 +34,7 @@ def 函数名(参数)
   reduce(函数, 序列) #函数必须接受两个参数，reduce会将序列中的元素两两运算
   filter(函数, 序列) #将序列传入函数决定是否保留该元素
   sorted(序列, 函数) #根据函数对序列进行排序
+  lambda x: x * x #lambda匿名函数关键字
   
 
 4.容器(列表[List]、元组[trupe]、字典[dict])
