@@ -142,5 +142,9 @@ mode:
     count = count+1
   print "end!"
   
+12.如何判断一个对象是否可迭代
+  >>>from collections import Iterable
+  >>>isinstance("abc", Iterable)
+  >>>isinstance(1, Iterable)
   
   
