@@ -135,8 +135,12 @@ mode:
   else:
       <执行3>
   
-
-
+11.循环语句
+  count=0
+  while(count<9):
+    print ""
+    count = count+1
+  print "end!"
   
   
   
