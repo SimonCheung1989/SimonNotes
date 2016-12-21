@@ -8,12 +8,29 @@ def 函数名(参数)
 2.函数体内使用全局变量需要添加 global关键字
 
 3.常用函数：
-print
-range(初始值, 终止值, 步长)
-rawinput("请输入：")
-int("123")
-len("abc")
-str(1000)
+  print
+  range(初始值, 终止值, 步长)
+  rawinput("请输入：")
+  int("123")
+  len("abc")
+  str(1000)
+  内置函数
+  int(x[,base])
+  long(x[,base])
+  float(x)
+  str(x)
+  repr(x)
+  eval(str)
+  tuple(s)
+  set(s)
+  dict(d)
+  frozenset(s)
+  chr(x)
+  unichr(x)
+  ord(x)
+  hex(x)
+  oct(x)
+  
 
 4.容器(列表[List]、元组[trupe]、字典[dict])
 列表：
