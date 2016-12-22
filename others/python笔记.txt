@@ -152,5 +152,12 @@ mode:
   >>>isinstance("abc", Iterable)
   >>>isinstance(1, Iterable)
   
-13.限定类属性
-   __slots__ = ('name', 'age')
+13.类
+  类定义
+    class Animal(object):
+      pass
+    
+    class Bird(Animal):
+      pass
+  限定类属性
+    __slots__ = ('name', 'age')
