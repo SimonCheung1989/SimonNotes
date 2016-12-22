@@ -161,3 +161,12 @@ mode:
       pass
   限定类属性
     __slots__ = ('name', 'age')
+    
+14.错误处理
+  try:
+    r=10/0
+  except ZeroDivisionError, e:
+    print "error"
+  finally:
+    print "finally"
+  print "End"
