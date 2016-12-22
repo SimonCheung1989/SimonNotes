@@ -152,4 +152,5 @@ mode:
   >>>isinstance("abc", Iterable)
   >>>isinstance(1, Iterable)
   
-  
+13.限定类属性
+   __slots__ = ('name', 'age')
