@@ -1,0 +1,2 @@
+1.X-Frame-Options 配置
+/opt/IBM/IBMIHS85/conf/rapidprovision-WS/wserver.conf 
