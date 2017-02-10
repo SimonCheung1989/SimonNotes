@@ -1,0 +1,32 @@
+        //私钥加密
+        KeyStore keyStore = KeyStore.getInstance("JKS", "IBMJCE");
+        keyStore.load(new FileInputStream(E2ETest.class.getResource("/e2e_trust_GMS_EDIN935_keys.keystore").getPath()), "changeit".toCharArray());
+        System.out.println(keyStore.size());
+        
+        PrivateKey privateKey = (PrivateKey)keyStore.getKey("SMP_GATEWAY_DIT", "changeit".toCharArray());
+        
+        Signature signer = Signature.getInstance("SHA1withRSA", "IBMJCE");
+        
+        signer.initSign(privateKey);
+        signer.update("simon.ww.zhang".getBytes());
+        byte[] signature = signer.sign();
+        String base64str = new String(Base64.encodeBase64(signature));
+        System.out.println(base64str);
+        
+        
+        
+        //公钥验证
+        InputStream is = E2ETest.class.getResourceAsStream("/smp_gateway_dit.cer");
+        
+        CertificateFactory certFact = CertificateFactory.getInstance("X.509");
+        
+        Certificate cert = certFact.generateCertificate(is);
+        PublicKey publicKey = cert.getPublicKey();
+        
+        Signature verifier = Signature.getInstance("SHA1withRSA");
+        verifier.initVerify(publicKey);
+        verifier.update("simon.ww.zhang".getBytes());
+        byte[] bsignedStr = Base64.decodeBase64(base64str.getBytes());
+        boolean b = verifier.verify(bsignedStr);
+        
+        System.out.println(b);
