@@ -5,3 +5,20 @@
       <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
       <mirrorOf>central</mirrorOf>        
     </mirror>
+
+2.当网络限制不能够直接访问repository时
+(1)settings.xml添加配置
+	<proxies>
+		<proxy>
+		  <id>cntlm-proxy</id>
+		  <active>true</active>
+		  <protocol>http</protocol>
+		  <host>127.0.0.1</host>
+		  <username>43957841</username>
+		  <password>***</password>
+		  <port>3128</port>
+		  <nonProxyHosts>localhost</nonProxyHosts>
+		</proxy> 
+	</proxies>
+(2)下载cntlm https://sourceforge.net/projects/cntlm/files/
+    修改配置文件cntlm.ini
