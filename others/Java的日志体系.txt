@@ -11,3 +11,8 @@
     log4j-core.jar
     log4j-jcl.jar --> 桥接 commons-logging
     log4j-slf4j-impl  --> 桥接 slf4j-api
+3.包冲突
+  (1)commons-logging
+    如果classpath下存在log4j-jcl.jar则启动log4j2,否则启动log4j
+  (2)slf4j-api
+    如果classpath下存在log4j-slf4j-impl.jar则启动log4j2,否则启动log4j
