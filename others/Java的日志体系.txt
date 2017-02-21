@@ -1,0 +1,13 @@
+1.顶层接口
+  commons-logging.jar
+  slf4j-api.jar
+2.底层实现
+  (1)Log4j
+    log4j.jar
+    slf4j-log4j12.jar --> 桥接 slf4j-api
+    
+  (2)Log4j2
+    log4j-api.jar
+    log4j-core.jar
+    log4j-jcl.jar --> 桥接 commons-logging
+    log4j-slf4j-impl  --> 桥接 slf4j-api
