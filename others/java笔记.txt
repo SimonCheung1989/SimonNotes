@@ -30,3 +30,7 @@
         boolean b = verifier.verify(bsignedStr);
         
         System.out.println(b);
+        
+        
+ java 执行jar包中的类main方法
+ java -classpath ****.jar ****.****.className [args]
