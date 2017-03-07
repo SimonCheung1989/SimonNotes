@@ -1,0 +1,63 @@
+1.自定义登录页面username&password参数
+	可以通过UsernamePasswordAuthenticationFilter.java修改
+2.Spring OAuth2.0
+	1>	<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+		</dependency>
+	2>	@Configuration	//此标签会标记为配置类，相当于xml
+		@EnableAuthorizationServer	//此标签会自动初始化/oauth/authorize,/oauth/token端点，启用http basic authentications
+		@EnableResourceServer	//此标签会启用spring security filter来认证http request通过OAuth2 token
+		public class ResourceOAuthSecurityConfiguration extends ResourceServerConfigurerAdapter{
+			@Override
+			public void configure(HttpSecurity http) throws Exception{
+				htt.authorizeRequests()
+					.antMatchers("/").permitAll()
+					.antMatchers("/api/**").authenticated();
+			}
+		}
+	3>	启动日志中可以找到
+		security.oauth2.client.clientId=XXXXXXXX
+		security.oauth2.client.secret=YYYYYYYYYY
+		每次启动都会改变
+		$ curl -i localhost:8080/oauth/token -d "grant_type=password&scope=read&username=springboot&password=isawesome" -u XXXXXXXX:YYYYYYYYYY
+		通过返回结果中的access_token
+		$ curl -i -H "Authorization: bearer ${access_token}" localhost:8080/api
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
