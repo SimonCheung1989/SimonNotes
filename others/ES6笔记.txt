@@ -1,0 +1,229 @@
+---------------------------------
+ES6简介
+---------------------------------
+1.ES6泛指5.1版本之后的下一代JavaScript标准
+2.查看浏览器厂商对ES6的支持 http://kangax.github.io/compat-table/es6/
+3.let命令
+	用来声明变量，用法类似var,但是所声明的变量只在let命令所在代码块内有效。
+	不存在变量提升，即变量一定要在声明语句之后使用
+	暂时性死区，ES6明确规定，如果区块中存在let和const命令，则区块对这些命令声明的变量与全局变量隔离
+	不允许变量重复声明
+	块级作用域
+4.const命令
+	声明一个只读的常量，一旦声明，常量的值就不能改变。
+5.ES6声明变量的六种方法
+	ES5声明变量的方法:var命令和function命令。
+	ES6声明变量的方法:var命令、function命令、let命令、const命令、import命令、class命令。
+6.顶层对象的属性
+	ES6中var命令和function命令声明的全局变量，依旧是顶层对象的属性。
+	let命令、const命令、class命令声明的全局变量，不属于顶层对象的属性。
+7.数组的解构赋值
+	let [a, b, c] = [1, 2, 3];
+8.对象的解构赋值
+	let {foo, bar} = {foo: "aaa", bar: "bbb"};
+9.字符串的解构赋值
+	const [a, b, c, d, e] = "hello";
+10.数值和布尔值的解构赋值
+	let {toString: s} = 123;
+11.函数参数的解构赋值
+	function add([x, y]){
+		return x+y;
+	}
+	add([1, 2]);
+12.不能使用圆括号的情况
+	(1)变量声明语句中，不能带有圆括号
+	(2)函数参数中，模式不能带有圆括号
+	(3)赋值语句中，不能将整个模式，或嵌套模式中的一层，放在圆括号中
+13.可以使用圆括号的情况
+	赋值语句的飞模式部分，可以使用圆括号
+14.变量的解构赋值用途
+	(1)交换变量的值
+		let x = 1;
+		let y = 2;
+		[x, y] = [y, x];
+	(2)从函数返回多个值
+	(3)函数参数的定义
+	(4)提取JSON数据
+	(5)函数参数的默认值
+	(6)遍历Map结构 
+		for(let [key, value] of map){
+			console.log(key+ " is "+value);
+		}
+	(7)输入模块的指定方法
+15.字符串的扩展
+	(1)字符串的Unicode表示法
+	(2)codePointAt()
+		JavaScript内部，字符以UTF-16的格式存储，每个字符固定为2个字节。对于那些需要4个字节存储的字符，JavaScript会认为它们是两个字符。
+		codePointAt()可以正确读取4字节字符的码值。
+	(3)String.fromCodePoint()
+		String.fromCharCode()不能识别大于0xFFFF的码点
+		String.fromCodePoint()可以
+	(4)字符串的遍历器接口
+		for(let codePoint of 'foo'){
+			console.log(codePoint);
+		}
+	(5)at()
+		ES5中charAt()方法无法识别码点大于0xFFFF的字符
+		ES6中at()可以
+	(6)normalize()
+	(7)includes(),startsWith(),endsWith()
+	(8)repeat()
+	(9)padStart(),padEnd()
+		'x'.padStart(5, 'ab');	// 'ababx'
+		'x'.padEnd(5, 'ab'); 	// 'xabab'
+	(10)模板字符串
+		``可以当做普通字符处理
+	(11)实例:模板编译
+		<%...%>放置JavaScript代码
+		<%=...%>输出JavaScript表达式
+	(12)标签模板
+	(13)String.raw()
+	(14)模板字符串的限制
+16.正则的扩展
+	(1)RegExp构造函数
+	(2)字符串的正则方法
+		字符串对象共有4个方法，可以使用正则表达式：match()、replace()、search()、split().
+	(3)u修饰符
+	(4)y修饰符
+	(5)sticky属性
+	(6)flags属性
+	(7)RegExp.escape()
+	(8)s修饰符:dotAll模式
+	(9)后行断言
+	(10)Unicode属性类
+17.数值的扩展
+	(1)二进制和八进制的表示法
+		ES6提供了二进制和八进制数值的新写法
+		分别用前缀0b和0o
+	(2)Number.isFinite(),Number.isNaN()
+	(3)Number.parseInt(),Number.parseFloat()
+		ES6将ES5的全局方法移植到Number对象上
+	(4)Number.isInteger()
+	(5)Number.EPSILON
+		是一个极小的值，实质上是一个可以接受的误差范围
+	(6)安全整数和Number.isSafeInteger()
+		JavaScript能够精准表示的证书范围在-2^53到2^53之间(不含两个端点)，超过这个范围将无法精确表示这个值。
+	(7)Math对象的扩展
+		ES6在Math对象上新增了17个与数学相关的方法。
+		Math.trunc(4.3);	-去除小数部分返回整数部分
+		Math.sign(0);		-用来判断一个数是正数、负数、还是零
+		Math.cbrt(-1);		-计算一个数的立方根
+		Math.clz32(0);		-JavaScript的整数使用32位二进制形式表示，该方法返回一个数的32位无符号整数形式有多少个前导0
+		Math.imul(2, 4);	-返回两个数以32位带符号整数形式相乘的结果
+		Math.fround(0);		-返回一个数的单精度浮点数形式
+		Math.hypot(3, 4);	-返回所有参数的平方和的平方根
+		ES6新增6个三角函数方法
+		Math.sinh(x)
+		Math.cosh(x)
+		Math.tanh(x)
+		Math.asinh(x)
+		Math.acosh(x)
+		Math.atanh(x)
+	(8)Math.signbit() 
+		用来判断一个值正负
+	(9)指数运算符
+		**
+18.数组的扩展
+	(1)Array.from()
+	(2)Array.of()
+	(3)数组实例的copyWithin()
+	(4)数组实例的find()和findIndex()
+	(5)数组实例的fill()
+	(6)数组实例的entries(),keys()和values()
+	(7)数组实例的includes()
+	(8)数组的空位
+19.函数的扩展
+	(1)函数参数的默认值
+		function Point(x=0, y=0){
+			//默认x,y
+		}
+		函数length属性，将返回没有默认值的参数个数
+	(2)rest参数
+		function add(...values){
+		}
+	(3)扩展运算符
+	(4)严格模式
+		函数内部可以设定为严格模式
+		function doSomething(){
+			'use strict';
+		}
+	(5)name属性
+		返回函数名称，匿名函数返回anonymous
+	(6)箭头函数
+		var f = v => v;
+		等同于
+		var f = function(v){
+			return v;
+		}
+		使用注意点
+			a.函数体内的this对象，就是定义时所在的对象，而不是使用时所在的对象
+			b.不可以当做构造函数，也就是说不可以使用new命令，否则会跑出一个错误
+			c.不可以使用arguments对象，该对象在函数体内不存在。如果要用，可以用rest参数替代
+			d.不可以使用yield命令，因此箭头函数不能用作Generator函数
+	(7)绑定this
+	(8)尾调用优化
+		尾调用，就是指某个函数的最后一步是调用另一个函数
+	(9)函数参数的尾逗号
+20.对象的扩展
+	(1)属性的简洁表示法
+	(2)属性名表达式
+	(3)方法的name属性
+	(4)Object.is()
+		ES5比较两个值是否相等，只有两个运算符：相等运算符（==）和严格相等运算符（===）。
+		他们都有缺点，前者会自动转换数据类型，后者的NaN不等于自身，以及+0等于-0。
+	(5)Object.assign()
+		Object.assign方法用于对象的合并，将源对象的所有可枚举的属性，复制到目标对象
+		var target = {a:1};
+		var source1 = {b:2};
+		var source2 = {c:3};
+		Object.assign(target, source1, source2);
+		target //{a:1, b:2, c:3}
+	(6)属性的可枚举性
+	(7)属性的遍历
+		ES6中共有5种方法可以遍历对象的属性
+		a.for...in
+		b.Object.keys(obj)
+		c.Object.getOwnPropertyNames(obj)
+		d.Object.getOwnPropertySymbols(obj)
+		e.Reflect.ownKeys(obj)
+	(8)__proto__属性，Object.setPrototypeOf()，Object.getPrototypeOf()
+	(9)Object.keys(),Object.values(),Object.entries()
+	(10)对象的扩展运算符
+	(11)Object.getOwnPropertyDescriptors()
+	(12)Null传导运算符
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
