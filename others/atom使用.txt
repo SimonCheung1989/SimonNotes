@@ -1,0 +1,12 @@
+--------------------------------------------
+ATOM使用
+--------------------------------------------
+1.开发Node.js需要的插件
+  * atom-ternjs 用于 Javascript 和 Node.js 的自动补全
+  * script 用于一键运行程序
+
+2.安装插件
+  File -> Settings -> Install -> Search plugin
+  如果由于网络限制无法直接安装
+  通过 github 将插件代码 clone到本地
+  然后   npm install

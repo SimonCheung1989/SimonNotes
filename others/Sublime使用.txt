@@ -1,0 +1,20 @@
+------------------
+Sublime使用
+------------------------
+1.如何运行js代码
+	Tools -> Build System -> New Build System
+	{
+	    "cmd": ["node", "$file"],
+	    "file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+	    "working_dir": "${project_path:${folder}}",
+	    "selector": "source.js",
+	    "shell": true,
+	    "encoding": "utf-8",
+	    "windows": {
+	        "cmd": ["node", "$file"]
+	    },
+	    "linux": {
+	        "cmd": ["killall node; node", "$file"]
+	    }
+	}
+	保存为JavaScript.sublime-build到默认位置即可，Ctrl+B可执行js
