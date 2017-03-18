@@ -1,0 +1,2 @@
+1.Node常用命令
+	https://www.oschina.net/news/79226/10-tips-and-tricks-that-will-make-you-an-npm-ninja
