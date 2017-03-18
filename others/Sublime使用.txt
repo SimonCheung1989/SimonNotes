@@ -21,3 +21,15 @@ Sublime使用
 
 2.安装Node插件
 	http://www.cnblogs.com/qiaojie/p/5560388.html
+
+3.安装安装包管理器
+	https://packagecontrol.io/installation
+
+4.安装Dos命令行插件
+	Ctrl+Shift+P调出包管理器 输入: install package, 查找SublimeREPL
+
+5.窗口布局
+	View -> Layout
+	快捷键
+	Alt+Shift+2, 两列
+	Alt+Shift+8, 两行
