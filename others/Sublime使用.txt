@@ -18,3 +18,6 @@ Sublime使用
 	    }
 	}
 	保存为JavaScript.sublime-build到默认位置即可，Ctrl+B可执行js
+
+2.安装Node插件
+	http://www.cnblogs.com/qiaojie/p/5560388.html
