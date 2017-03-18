@@ -11,6 +11,13 @@
 
 5.创建远程分支 git push -u origin new_branch
 
+6.解决冲突
+	git stash（将本地更改暂存到git堆栈）
+	git pull （更新远程仓库代码）
+	git stash pop	（从堆栈取出本地更改）
+	比对提交	（对比提交）
+
+
 查看、添加、提交、删除、找回，重置修改文件
 
 git help <command> # 显示command的help
