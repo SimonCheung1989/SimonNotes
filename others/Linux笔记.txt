@@ -14,7 +14,7 @@
           HWADDR=xx:xx:xx:xx:xx:xx
           NAME=eth0
           DNS1=8.8.8.8
-   2) 修改/etc/rc.d/rc.local
+   2) 修改/etc/rc.d/rc.local (可以省略)
           最后一行添加
           ifup eth0
    3) reboot system
