@@ -1,0 +1,11 @@
+1.Chrome
+2.Baidu云盘
+3.Git
+4.Xftp
+5.Xshell
+6.SmartGit
+7.VMWare
+8.Sublime Text
+9.Atom
+10.Intellij IDEA
+11.MyEclipse
