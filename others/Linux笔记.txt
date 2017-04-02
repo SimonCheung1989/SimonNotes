@@ -18,3 +18,6 @@
           最后一行添加
           ifup eth0
    3) reboot system
+
+3.Docker 无法 pull镜像
+  https://c.163.com/hub#/m/repository/?repoId=1055
