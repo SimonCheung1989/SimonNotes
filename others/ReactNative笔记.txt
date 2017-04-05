@@ -2,6 +2,10 @@
 
 2.Windows平台UWP Debug快捷键Shift+F10
 
+3.Image resizeMode: Image.resizeMode.contain 属性
+  cover:等比拉伸
+  strech:保持原有大小 
+  contain:图片拉伸  充满空间
 
 http://es6.ruanyifeng.com/#README
 
