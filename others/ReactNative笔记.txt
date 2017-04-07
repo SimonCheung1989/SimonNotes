@@ -14,3 +14,5 @@ http://bbs.reactnative.cn/topic/15/react-react-native-%E7%9A%84es5-es6%E5%86%99%
 http://reactnative.cn/docs/0.42/tutorial.html#content
 
 https://facebook.github.io/react-native/docs/network.html
+
+https://github.com/alinz/example-react-native-redux/blob/master/Counter/app/containers/counterApp.js
