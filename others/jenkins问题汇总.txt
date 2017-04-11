@@ -9,3 +9,101 @@
 
 
 http://www.yyyweb.com/ctools/download.php?target=http%3A%2F%2Fwww.yyyweb.com%2Fdemo%2Fpage-transitions%2Fpage-transitions.rar
+
+3.Jenkins服务器搭建指定maven版本为3.5.0, build时总是报错,修改maven版本为3.2.5解决
+<===[JENKINS REMOTING CAPACITY]===>channel started
+Executing Maven:  -B -f C:\Program Files (x86)\Jenkins\workspace\maven-test\simon-web\pom.xml clean install -X
+[1mApache Maven 3.5.0 (ff8f5e7444045639af65f6095c62210b5713f426; 2017-04-04T03:39:06+08:00)[m
+Maven home: C:\Program Files (x86)\Jenkins\tools\hudson.tasks.Maven_MavenInstallation\Maven
+Java version: 1.8.0_66, vendor: Oracle Corporation
+Java home: C:\Program Files (x86)\Jenkins\jre
+Default locale: en_HK, platform encoding: GBK
+OS name: "windows 10", version: "10.0", arch: "x86", family: "windows"
+[[1;34mINFO[m] Error stacktraces are turned on.
+java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launchStandard(Launcher.java:330)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launch(Launcher.java:238)
+	at jenkins.maven3.agent.Maven33Main.launch(Maven33Main.java:176)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at hudson.maven.Maven3Builder.call(Maven3Builder.java:139)
+	at hudson.maven.Maven3Builder.call(Maven3Builder.java:70)
+	at hudson.remoting.UserRequest.perform(UserRequest.java:153)
+	at hudson.remoting.UserRequest.perform(UserRequest.java:50)
+	at hudson.remoting.Request$2.run(Request.java:336)
+	at hudson.remoting.InterceptingExecutorService$1.call(InterceptingExecutorService.java:68)
+	at java.util.concurrent.FutureTask.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+Caused by: java.lang.NoSuchFieldError: DEFAULT_USER_SETTINGS_FILE
+	at org.apache.maven.cli.DefaultMavenExecutionRequestBuilder.settings(DefaultMavenExecutionRequestBuilder.java:658)
+	at org.apache.maven.cli.DefaultMavenExecutionRequestBuilder.getMavenExecutionRequest(DefaultMavenExecutionRequestBuilder.java:149)
+	at org.jvnet.hudson.maven3.launcher.Maven33Launcher.getMavenExecutionRequest(Maven33Launcher.java:150)
+	at org.jvnet.hudson.maven3.launcher.Maven33Launcher.main(Maven33Launcher.java:127)
+	... 21 more
+ERROR: Failed to parse POMs
+channel stopped
+java.io.IOException: java.lang.reflect.InvocationTargetException
+	at hudson.maven.Maven3Builder.call(Maven3Builder.java:179)
+	at hudson.maven.Maven3Builder.call(Maven3Builder.java:70)
+	at hudson.remoting.UserRequest.perform(UserRequest.java:153)
+	at hudson.remoting.UserRequest.perform(UserRequest.java:50)
+	at hudson.remoting.Request$2.run(Request.java:336)
+	at hudson.remoting.InterceptingExecutorService$1.call(InterceptingExecutorService.java:68)
+	at java.util.concurrent.FutureTask.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+	at ......remote call to Channel to Maven [java, -cp, C:\Program Files (x86)\Jenkins\plugins\maven-plugin\WEB-INF\lib\maven33-agent-1.8.1.jar;C:\Program Files (x86)\Jenkins\tools\hudson.tasks.Maven_MavenInstallation\Maven\boot\plexus-classworlds-2.5.2.jar;C:\Program Files (x86)\Jenkins\tools\hudson.tasks.Maven_MavenInstallation\Maven/conf/logging, jenkins.maven3.agent.Maven33Main, C:\Program Files (x86)\Jenkins\tools\hudson.tasks.Maven_MavenInstallation\Maven, C:\Program Files (x86)\Jenkins\war\WEB-INF\lib\remoting-3.7.jar, C:\Program Files (x86)\Jenkins\plugins\maven-plugin\WEB-INF\lib\maven33-interceptor-1.8.1.jar, C:\Program Files (x86)\Jenkins\plugins\maven-plugin\WEB-INF\lib\maven3-interceptor-commons-1.8.1.jar, 57934](Native Method)
+	at hudson.remoting.Channel.attachCallSiteStackTrace(Channel.java:1545)
+	at hudson.remoting.UserResponse.retrieve(UserRequest.java:253)
+	at hudson.remoting.Channel.call(Channel.java:830)
+	at hudson.maven.ProcessCache$MavenProcess.call(ProcessCache.java:161)
+	at hudson.maven.MavenModuleSetBuild$MavenModuleSetBuildExecution.doRun(MavenModuleSetBuild.java:873)
+	at hudson.model.AbstractBuild$AbstractBuildExecution.run(AbstractBuild.java:534)
+	at hudson.model.Run.execute(Run.java:1728)
+	at hudson.maven.MavenModuleSetBuild.run(MavenModuleSetBuild.java:544)
+	at hudson.model.ResourceController.execute(ResourceController.java:98)
+	at hudson.model.Executor.run(Executor.java:405)
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at hudson.maven.Maven3Builder.call(Maven3Builder.java:139)
+	at hudson.maven.Maven3Builder.call(Maven3Builder.java:70)
+	at hudson.remoting.UserRequest.perform(UserRequest.java:153)
+	at hudson.remoting.UserRequest.perform(UserRequest.java:50)
+	at hudson.remoting.Request$2.run(Request.java:336)
+	at hudson.remoting.InterceptingExecutorService$1.call(InterceptingExecutorService.java:68)
+	at java.util.concurrent.FutureTask.run(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+Caused by: java.lang.Exception: java.lang.reflect.InvocationTargetException
+	at jenkins.maven3.agent.Maven33Main.launch(Maven33Main.java:179)
+	... 14 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launchStandard(Launcher.java:330)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launch(Launcher.java:238)
+	at jenkins.maven3.agent.Maven33Main.launch(Maven33Main.java:176)
+	... 14 more
+Caused by: java.lang.NoSuchFieldError: DEFAULT_USER_SETTINGS_FILE
+	at org.apache.maven.cli.DefaultMavenExecutionRequestBuilder.settings(DefaultMavenExecutionRequestBuilder.java:658)
+	at org.apache.maven.cli.DefaultMavenExecutionRequestBuilder.getMavenExecutionRequest(DefaultMavenExecutionRequestBuilder.java:149)
+	at org.jvnet.hudson.maven3.launcher.Maven33Launcher.getMavenExecutionRequest(Maven33Launcher.java:150)
+	at org.jvnet.hudson.maven3.launcher.Maven33Launcher.main(Maven33Launcher.java:127)
+	... 21 more
+Sending e-mails to: simon243120877@gmail.com
+Finished: FAILURE
