@@ -1,0 +1,2 @@
+error An unexpected error occurred: "https://registry.yarnpkg.com/classnames: unable to verify the first certificate".
+yarn config set "strict-ssl" false -g
