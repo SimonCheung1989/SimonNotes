@@ -1,0 +1,14 @@
+Essential Experience
+*Agile Java Development experience
+*Java 8 experience or familiar with new features
+*Experience and knowledge of Microservices
+*Understanding key concepts of 12 Factor App
+*Experience in writing clean code and Web APIs
+*Asynchronous / event driven programming
+*OOD and understanding of Functional Programming
+*TDD /BDD
+*GitHub, pull request review process
+*JUnit / Mockito / Cucumber / JBehave
+*CI/CD Jenkins or Teamcity experience
+*REST
+*SpringBoot
