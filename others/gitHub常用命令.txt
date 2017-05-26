@@ -19,6 +19,22 @@
 
 7.添加pubkey
 	cd ~/.ssh && ssh-keygen
+	
+8.git beyondcompare配置~/.gitconfig
+	[diff]
+	    tool = bc3
+	[difftool]
+	    prompt = false
+	[difftool "bc3"]
+	    #use cygpath to transform cygwin path $LOCAL (something like /tmp/U5VvP1_abc) to windows path, because bc3 is a windows software
+	    cmd = \"C:/Users/43957841/Soft/Beyond Compare 3/BCompare.exe\" "$(cygpath -w $LOCAL)" "$REMOTE"
+	[merge]
+	    tool = bc3
+	[mergetool]
+	    prompt = false
+	[mergetool "bc3"]
+	    #trustExitCode = true
+	    cmd = \"C:/Users/43957841/Soft/Beyond Compare 3/BCompare.exe\" "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
 
 
 查看、添加、提交、删除、找回，重置修改文件
