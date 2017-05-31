@@ -6,3 +6,11 @@
 通过 npm config get prefix 来获取当前设置的目录。
 
 3. npm install xxx ，则是将模块下载到当前命令行所在目录
+
+4.package.json
+	dependencies:
+	devDependencies:
+	peerDependencies:
+	bundledDependencies:
+	optionalDependencies:
+	[reference](https://stackoverflow.com/questions/18875674/whats-the-difference-between-dependencies-devdependencies-and-peerdependencies)
