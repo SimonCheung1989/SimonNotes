@@ -35,7 +35,9 @@
 	[mergetool "bc3"]
 	    #trustExitCode = true
 	    cmd = \"C:/Users/43957841/Soft/Beyond Compare 3/BCompare.exe\" "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
-
+	    
+9.大小写敏感
+git config core.ignorecase false
 
 查看、添加、提交、删除、找回，重置修改文件
 
