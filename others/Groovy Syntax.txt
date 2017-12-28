@@ -1,0 +1,170 @@
+Groovy Syntax
+1.Comments
+	1.1. Single line comment
+		// a standlone single line comment
+	1.2. Multiline comment
+		/* a standalone multiline comment
+			spanning two lines */
+	1.3. GroovyDoc comment
+		/**
+		 * Doc comment
+		 *
+		 */
+	1.4. Shebang line
+		#!/usr/bin/env groovy
+
+2.Keywords
+	as		assert	break		case
+	catch	class	const		continue
+	def		default	do			else
+	enum	extends false		finally
+	for		goto	if			implements
+	import	in		instanceof	interface
+	new		null	package		return
+	super	switch	this		throw
+	throws	trait	true		try
+	while
+
+3.Identifiers
+	3.1. Normal identifiers
+		Identifiers start with a letter, a dollar or an underscore. They cannot start with a number.
+		def name
+		def item3
+		def with_underscore
+		def $dollarStart
+	3.2. Quote identifiers
+		Quoted identifers appear after the dot of a dotted expression. For instance, the name part
+		of the person.name expression can be quoted with person."name" or person.'name'.This is
+		particularly intersting when certain identifiers contain illegal characters that are forbidden
+		by the Java Language Specification, but which are allowed by Groovy when quoted. For example,
+		characters like dash, a spece, an exclamation mark, etc.
+		def map = [:]
+		map."an identifier with a space and double quotes" = "ALLOWED"
+		map.'with-dash-signs-and-single-quotes' = "ALLOWED"
+
+4.Strings
+	Text literals are represented in the form of chain of characters called strings. Groovy lets you 
+	instantiate java.lang.String objects, as well as GStrings(groovy.lang.GString) which are also 
+	called interpolated strings in other programming languages.
+	4.1. Single quoted string
+		Single quoted strings are a series of characters surrounded by single quotes:
+		'a single quoted string'
+		Single quoted strings are plain java.lang.String and don't support interpolation
+	4.2. String concatenation
+		All the Groovy strings can be concatenated with the + operator:
+		assert 'ab' == 'a' + 'b'
+	4.3. Triple single quoted string
+		Triple single quoted strings are a series of characters surrounded by triplets of single quotes:
+		'''a triple single quoted string'''
+		Triple single quoted strings are plain java.lang.String and don't support interpolation.
+		Triple single quoted strings are multiline. You can span the content of the string across 
+		line boundaries without the need to split the string in several pieces, without contatenation 
+		or newline escape characters:
+		def aMultilineString = ''' line one
+		line two
+		line three'''
+		4.3.1. Escaping special characters
+			\t	tabulation
+			\b	backspace
+			\n	newline
+			\r	carriage return
+			\f	formfeed
+			\\	backslash
+			\'	single quote
+			\"	double quote
+		4.3.2. Unicode escape sequence
+			\u20AC
+	4.4. Double quoted string
+		Double quoted string are a series of characters surrounded by double quotes:
+		"a double quoted string"
+		4.4.1. String interpolation
+			Any Groovy expression can be interpolated in all string literals, apart from single and 
+			triple single quoted strings. Interpolation is the act of replacing a placeholder in the 
+			string with its value upon evaluation of the string. The placeholder expressions are
+			surrounded by ${} or prefixed with $ for dotted expressions. The expression value inside 
+			the placeholder is evaluated to its string representation when the GString is passed
+			to a method taking a String as argument by calling toString() on that expression.
+				def name = 'Simon'
+				def greeting = "Hello ${name}"
+		4.4.2. Special case of interpolating closure expressions
+			So far, we've seen we could interpolate arbitrary expressions inside the ${} placeholder,
+			but there is a special case and notation for closure expressions. When the placeholder
+			contains an arrow, ${->}, the expression is actually a closure expression - you can think
+			of it as a closure with a dollar prepended in front of it:
+				def sParameterLessClosure = "1 + 2 == ${-> 3}"
+		4.4.3. Interoperability with Java
+			When a method (whether implemented in Java or Groovy) exprects a java.lang.String, but we
+			pass a groovy.lang.GString instance, the toString() method of the GString is automatically
+			and transparently called.
+		4.4.4. GString and String hasCodes
+			Although interpolated string can be used in lieu of plain Java strings, they differ with 
+			strings in a particular way: their hasCodes are different. Plain Java strings are immutable,
+			whereas the resulting String representation of a GString can vary, depending on its interpolated
+			values, Even for the same resulting string, GString and String don't have the same hashCode
+	4.5. Triple double quoted string
+		Triple double quoted strings behave like double quoted string, with the addition that they 
+		are multiline, like triple single quoted strings.
+	4.6. Slashy string
+		Beyond the usual quoted strings, Groovy offers slashy strings, which use / as delimiters.
+		Slashy strings are particularly useful for defining regular expressions and patterns, as
+		there is no need to escape backslashes
+	4.7. Dollar slashy string
+		Dollar slashy strings are multiline GString delimited with an opening $/ and anad a closing /$.
+		The escaping character is the dollar sign, and it can escape another dollar, or a forward
+		slash. But both dollar and forward slashes don't need to be escaped, except to escape the 
+		dollar of a string subsequence that would start like a GString placeholder sequence, or if
+		you need to escape a sequence that would start like a closing dollar slashy string delimiter.
+	4.8. String summary table
+	4.9. Characters
+		Unlike Java, Groovy doesn't have an explicit character literal. However, you can explicit
+		about making a Groovy string an actual character, by three different means:
+			char c1 = 'A'
+			assert c1 instanceof Character
+			def c2 = 'B' as char
+			assert c2 instanceof Character
+			def c3 = (char)'C'
+			assert c3 instanceof Character
+
+5.Numbers
+	Groovy supports different kinds of integral literals and decimal literals, backed by the usual
+	Number types of Java
+	5.1. Integral literals
+
+6.Booleans
+	Boolean is a special data type that is used to represent truth values: true and false. use this
+	data type for simple flags that track true/false conditions
+
+7.Lists
+	Groovy uses a comma-separated list of values, surrounded by square brackets, to denote lists.
+	Groovy lists are plain JDK java.util.List, as Groovy doesn't define its own collection classes.
+	The concrete list implementation used when defining list literals are java.util.ArrayList by
+	default, unless you decide to specify otherwise, as we shall see later on
+		def numbers = [1, 2, 3]
+		def linkedList = [1, 2, 3] as LinkedList
+		
+8.Arrays
+	Groovy reuses the list notation for arrays, but to make such literals arrays, you need to explictely
+	define the type of the array though coercion or type declaration.
+		String[] attrStr = ['Ananas', 'Banana', 'Kiwi']
+		Integer[][] matrix2
+		matrix2 = [[1, 2], [3, 4]]
+		
+9.Maps
+	Sometimes called dictionaries or associative arrays in other languages, Groovy features maps.
+	Maps associate keys to values, separating keys and values with colons and each key/value pairs with
+	commas, and the whole keys and values surrounded by square brackets.
+		def colors = [red: '#FF0000', green: '#00FF00', blue: '#0000FF']
+		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
