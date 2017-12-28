@@ -1,0 +1,614 @@
+1. 底层容器技术Docker VS Rocket
+2. 在kubernetes中，Service是分布式集群架构的核心，一个Service对象拥有如下关键特征:
+    （1）拥有一个唯一指定的名字
+    （2）拥有一个虚拟IP(Cluster IP, Service IP 或 VIP)和端口号
+    （3）能够提供某种远程服务能力
+    （4）被映射到了提供这种服务能力的一组容器应用上
+3.Kubernetes将集群中的机器分为一个Master节点和一群工作节点（Node），Master节点上运行着集群管理相关的一组进程kube-apiserver,kube-controller-manager,kube-scheduler,这些进程实现了整个集群的资源管理，Pod调度，弹性伸缩，安全控制，系统监控和纠错等管理功能，并且全都是全自动完成的。Node作为集群中的工作节点，运行真正的应用程序，在Node上Kubernetes管理的最小运行单元是Pod。Node上运行着Kubernetes的kubelet,kube-proxy服务进程，这些服务进程负责Pod的创建，启动，监控，重启，销毁，以及实现软件模式的负载均衡器。
+4.Kubernetes中的扩容以及升级Service,只需要为需要扩容的Service关联的Pod创建一个Replication Controller,则该Service的扩容以至于后来的Service升级等头疼问题都迎刃而解。在一个RC定义文件中包括以下3个关键信息：
+    （1）目标Pod的定义
+    （2）目标Pod需要运行的副本数量（Replicas）
+    （3）要监控的目标Pod的标签（Label）
+    在创建好RC（系统将自动创建好Pod）后，Kubernetes会通过RC中定义的Label筛选出对应的Pod实例并实时监控其状态和数量，如果实例数量少于定义的副本数量，则会根据RC中定义的Pod模板来撞见一个新的Pod，然后将此Pod调度到适合的Node上启动运行，直到Pod实例数量达到预定目标，这个过程完全是自动化的，无需人工干预。
+5.kubernetes 指令
+    kubectl create -f mysql-rc.yaml
+    kubectl get rc 查看rc
+    kubectl get pod 查看pod创建情况
+    docker ps | grep mysql
+    kubectl get svc 查看service
+    kubectl get nodes 
+    kubectl describe node kubernetes-minion1
+    kubectl scale rc redis-slave --replicas=3
+    kubectl get endpoints
+    kubectl get namespaces
+    kubectl get pods --namespace=development  #如果没有namespace参数默认使用default命名空间
+    kubectl get configmap
+    kubectl describe configmap cm-appvars
+    kubectl get configmap cm-appvars -o yaml
+    kubectl get pods --show-all
+    kubectl logs pod-name
+    kubectl label nodes <node-name> <label-key>=<label-value> #为node打label
+    kubectl rolling-update old-rcname -f v2.yaml  #rolling update
+    kubectl expose rc webapp #为rc暴露service
+    kubectl get pods -l app=myweb -o yaml | grep podIP #查看Pod端口
+    kubectl cordon k8s-node-1 #隔离调度
+    kubectl uncordon k8s-node-1 #恢复调度
+    
+6.Master
+    （1）kube-apiserver,提供了HTTP Rest接口的关键服务进程，是Kubernetes里所有资源的增删改查等操作的唯一入口，也是集群控制的入口进程。
+    （2）kube-controller-manager,Kubernetes里所有资源对象的自动化控制中心，可以理解为资源对象的“大总管”
+    （3）kube-scheduler，负责资源调度（Pod调度）的进程，相当于公交公司的“调度室”
+    其实Master节点上往往还启动了一个etcd Server进程，因为Kubernetes里所有的资源对象数据全部都保存在etcd中。
+7.Node
+    除了Master，Kubernetes集群中的其他机器被称为Node节点，在较早的版本中也被称为Minion，与Master一样，Node节点可以是一台物理主机，也可以是一台虚拟机。Node节点才是Kubernetes集群中的工作负载节点，每个Node都会被Master分配一些工作负载（Docker容器），当某个Node宕机时，其上的工作负载会被Master自动转移到其他节点上去。
+    每个Node节点上都会运行着以下一组关键进程
+    （1）kubelet:负责Pod对应的容器的创建，启动停止等任务，同时与Master节点密切协作，实现集群管理的基本功能。
+    （2）kube-proxy:实现Kubernetes Service的通信与负载均衡机制的重要组件
+    （3）Docker Engine(docker):Docker引擎，负责本机的容器创建和管理工作
+8.Pod
+    Pod是Kubernetes的最重要也是最基本的概念，每个Pod都有一个特殊的被称为“根容器”的Pause容器，Pause容器对应的镜像属于Kubernetes平台的一部分，除了Pause容器，每个Pod还包含一个或多个紧密相关的用户业务容器
+    Pod其实有两种类型：普通的Pod以及静态Pod，后者比较特殊，它并不存放在Kubernetes的etcd存储里，而是存放在某个具体的文件中，并且只在此Node上启动运行。而普通的Pod一旦被创建就会被放入到etcd中存储，随后会被Kubernetes Master调度到某个具体的Node上并且进行绑定，随后该Pod被对应的Node上的kubelet进程实例化成一组相关的Docker容器并启动起来。在默认情况下，当Pod里的某个容器停止时，Kubernetes会自动检测到这个问题并且重新启动这个Pod（重启Pod里所有的容器），如果Pod所在的Node宕机，则将这个Node上所有的Pod重新调度到其他节点上。
+    Kubernetes里所有的资源对象都可以采用yaml或者json格式的文件进行定义或描述，
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: myweb
+      labels:
+        name: myweb
+    spec:
+      containers:
+      - name: myweb
+        image: kubeguide/tomcat-app:v1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MYSQL_SERVICE_HOST
+          value: 'mysql'
+        - name: MYSQL_SERVICE_PORT
+          value: '3306'
+    解释：Kind为Pod表明这是一个Pod的定义，metadata里的name属性为Pod的名字，metadata里还能定义资源对象的标签（label），这里生命myweb拥有一个name=myweb的标签。Pod里所包含的容器组的定义则在spec一节中声明，这里定义了一个名字为myweb，对应镜像为kubeguide/tomcat-app:v1的容器，该容器注入了名为MYSQL_SERVICE_HOST='mysql'和MYSQL_SERVICE_PORT='3306'的环境变量，并且在8080端口上启动容器进程。Pod的IP加上这里的容器端口就组成了一个新的概念-endpoint，它代表着Pod里的一个服务进程对外的通信地址。一个Pod也存在着具有多个endpoint的情况，比如我们把tomcat定义为一个Pod的时候，可以对外暴露管理端口与服务端口这两个endpoint
+    我们熟悉的Docker Volume在Kubernetes中也有对应的概念--Pod Volume，后者有一些扩展，比如我们可以用分布式文件系统GlusterFS实现后端存储功能；Pod Volume是定义在Pod之上，然后被各个容器挂载到自己的文件系统中的。
+    Kubernetes里的Event概念，Event是一个事件的记录，记录了事件的最早产生时间，最后重现时间，重复次数，发起者，类型，以及导致此事件的原因等众多信息。Event通常会关联到某个具体的资源对象傻姑娘，是排查故障的重要参考信息，之前我们看到Node的描述信息包括了Event，而Pod同样有Event记录，当我们发现某个Pod迟迟无法创建时，可以用kubectl describe pod xxx来查看它的描述信息，用来定位问题的原因。
+    每个Pod都可以对其能使用的服务器上的计算资源设置限额，当前可以设置限额的计算资源有CPU与Memory两种，其中CPU的资源单位为CPU的数量，是一个绝对值。
+    一个CPU的配额对于绝大多数容器来说是相当大的一个资源配额了，所以在Kubernetes里，通常以千分之一的CPU配额为最小单位，用m来表示，通常一个容器的CPU配额被定义为100～300m，即占用0.1～0.3个CPU。由于CPU配额是一个绝对值，所以无论在拥有一个Core的机器上还是拥有48个Core的机器上，100m这个配额所代表的CPU的使用量都是一样的。与CPU配额类似，Memory配额也是一个绝对值，它的单位是内存字节书。在Kubernetes里，一个计算资源进行配额限定需要设定以下两个参数。
+    （1）Requests:该资源的最小申请量，系统必须满足要求
+    （2）Limits：该资源最大允许使用的量，不能被突破，当容器试图使用超过这个量的资源时，可能会被Kubernetes Kill并重启。
+    spec:
+      containers:
+      - name: db
+        image: mysql
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+9.Label
+    label是Kubernetes系统中另外一个核心概念。一个Label是一个key=value的键值对，其中key与value由用户自己指定。label可以附加到各种资源对象上，例如Node，Pod，Service，RC等，一个资源对象可以定义任意数量的Label，同一个Label也可以被添加到任意数量的资源对象傻姑娘，Label通常在资源对象定义时确定，也可以在对象创建后添加或者删除。
+    我们可以通过给指定资源对象上捆绑一个活着多个不同的label来实现多维度的资源分组管理功能，以便灵活，方便的进行资源分配，调度，配置，部署等管理工作。例如：部署不同版本的应用到不同的环境中；或者监控和分析应用（日志记录，监控，警告）等。一些常用的label示例如下：
+    （1）版本标签："release": "stable", "release": "canary"...
+    （2）环境标签："environment": "dev", "environment": "qa", "environment": "production"
+    （3）架构标签："tier": "frontend", "tier": "backend", "tier": "middleware"
+    （4）分区标签："partition": "customerA", "partition": "customerB"...
+    （5）质量管控标签："track": "daily", "track": "weekly"
+    Label相当于我们熟悉的“标签”，给某个资源对象定义一个Label，就相当于给它打了一个标签，随后可以通过Label Selector（标签选择器）查询和筛选拥有某些Label的资源对象，Kubernetes通过这种方式实现了类似SQL的简单又通用的查询机制。
+    Label Selector可以被类化为SQL语句中的where查询条件，例如，name=redis-slave这个Label Selector作用于Pod时，可以被类化为select * from pod where pod's name='redis-slave'这样的语句。当前又两种Label Selector表达式：基于等式的和基于集合的，前者采用“等式类”的表达匹配标签，例如：
+    （1）name=redis-slave:匹配所有具有标签name=redis-slave的资源对象
+    （2）env!=production:匹配所有不具有标签env=production的子资源对象
+    而后者则使用集合操作的表达式匹配标签，例如：
+    （1）name in (redis-master, redis-slave)
+    （2）name not in (php-frontend)
+    可以通过多个Label Selector表达式组合实现复杂的条件选择，表达式之间用“,”进行分割，例如：
+    （1）name=redis-slave, env!=production
+    （2）name not in (php-frontend), env!=production
+    Label Selector在Kubernetes中的重要使用场景有以下几处：
+    （1）kube-controller进程通过资源对象RC上定义的Label Selector来筛选要监控的Pod副本的数量，从而实现Pod副本的数量始终符合预期设定的全自动控制流程
+    （2）kube-proxy进程通过Service的Label Selector来选择对应的Pod，自动建立起每个Service到对应Pod的请求转发路由表，从而实现Service的智能负载均衡机制。
+    （3）通过对某些Node定义特定的Label，并且在Pod定义文件中使用Node Selector这种标签调度策略，kube-scheduler进程可以实现Pod“定向调度”的特性。
+10.Replication Controller(RC)
+    RC是Kubernetes系统中的核心概念之一，简单来说，它其实是定义了一个期望的场景，即声明某种Pod的副本数量在任意时刻都符合某个预期值，所以RC的定义包括如下几个部分。
+    （1）Pod期待的副本数（replicas）
+    （2）用于筛选目标Pod的Label Selector
+    （3）当Pod的副本数量小于预期数量的时候，用于创建新Pod的Pod模板（template）
+    下面是一个完整的RC定义的例子，即确保拥有tier=frontend标签的这个Pod（运行Tomcat容器）在整个Kubernetes集群中始终只有一个副本。
+    apiVersion: v1
+    kind: ReplicationController
+    metadata:
+      name: frontend
+    spec:
+      replicas: 1
+      selector:
+        tier: frontend
+      template:
+        metedata:
+          labels:
+            app: app-demo
+            tier: frontend
+        spec:
+          containers:
+          - name: tomcat-demo
+            image: tomcat
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: GET_HOST_FROM
+              value: dns
+            ports:
+            - containerPort: 80
+    当我们定义一个RC并提交到Kubernetes集群中以后，Master节点上的Controller Manager组件就得到通知，定期巡检系统中当前存活的目标Pod，并确保目标Pod实例数量刚好等于此Pod的期望值，如果有过多的Pod副本在运行，系统就会停掉一些Pod， 否则系统就会再自动创建一些Pod。可以说，通过RC，Kubernetes实现了用户应用集群的高可用性，并且大大减少了系统管理员在传统IT环境中需要完成许多手工运维工作（如主机监控脚本，应用监控脚本，故障恢复脚本等）
+    需要注意的是，删除RC并不会影响通过该RC已创建好的Pod，为了删除所有Pod，可以设置replicas的值为0，然后更新该RC。另外，kubectl提供了stop和delete命令来一次行删除RC和RC控制的全部Pod
+    当我们的应用升级时，通常会通过Build一个新的Docker镜像，并且用新的景象版本来替换旧的版本的方式达到目的。在系统升级过程中，我们希望是平滑的方式，比如当前系统中10个对应的旧版本Pod，最佳的方式就是旧版本的Pod每次停止一个，同时创建一个新版本的Pod，在整个升级过程中，此消彼长，而运行中的Pod数量始终是10个，几分钟以后，所有的Pod都已经是新版本的时候，升级过程完成。通过RC的机制，Kubernetes很容易就实现了这种高级实用特性，被称为“滚动升级”（Rolling Update）。
+    由于Replication Controller与Kubernetes代码中的模块Replication Controller同名，同时这个词也无法准确表达它的本意，所以在Kubernetes1.2的时候，它就升级成了另一个新的概念--Replica Set，官方解释为“下一代RC”，它与RC当前存在的唯一区别是：Replica Sets支持基于集合的Label Selector，而RC值支持基于等式的Label Selector，这使得Replica Set的功能更强，下面是等价于前面RC例子的Replica Set的定义（省略Pod模板部分内容）：
+    apiVersion: extensions/v1beta1
+    kind: ReplicaSet
+    metadata:
+      name: frontend
+    spec:
+      selector:
+        matchLabels:
+          tier: frontend
+        matchExpressions:
+          - {key: tier, operator: In, values: {frontend}}
+        template:
+          ...
+    kubectl命令行工具适用于RC的绝大部分命令都同样适用于Replica Set.此外，当前我们很少单独使用Replica Set,它主要被Eeployment这个更高层的资源对象所使用，从而形成一整套Pod创建，删除，更新的编排机制。当我们使用Deployment时，无需关心它是如何创建和维护Replica Set的，这一切都是自动发生的。
+    Replica Set与Deployment这两个重要资源对象逐步替换之前RC的作用，是Kubernetes1.3里Pod自动扩容这个告警功能的实现基础，也将继续在Kubernetes未来的版本中发挥重要作用。
+    最后我们总结一下关于RC（Replica Set）的一些特性与作用
+    （1）在大多数情况下，我们通过定义一个RC实现Pod的创建过程以及副本数量的自动控制
+    （2）RC里包括了完整的Pod定义模板
+    （3）RC通过Label Selector机制实现对Pod副本的自动控制
+    （4）通过改变RC里的Pod副本数量，可以实现Pod的扩容或缩容功能
+    （5）通过改变RC里Pod模板中的镜像版本，可以实现Pod的滚动升级功能
+11.Deployment
+    Deployment是Kubernetes1.2引入的新概念，引入的目的是为了更好的解决Pod编排问题。为此，Deployment在内部使用了Replica Set来实现目的，无论从Deployment的作用与目的，它的YAM定义，还是从它的具体命令行操作来看，我们都可以把它看作RC的一次升级，两者的相似度超过90%。
+    Deployment相对于RC的一个最大升级是我们可以随时知道当前Pod“部署”的进度。实际上由于一个Pod的创建。调度，绑定节点以及在目标Node上启动对应的容器这一完整过程需要一定的时间，所以我们期待系统启动N个Pod副本的目标状态，实际上是一个连续变化的“部署过程”导致最终状态。
+    Deployment的典型使用场景有以下几个。
+    （1）创建一个Deployment对象来生成对应的Replica Set并完成Pod副本的创建过程
+    （2）检查Deployment的状态来看部署动作是否完成（Pod副本的数量是否达到预期的值）
+    （3）更新Deployment以创建新的Pod（比如镜像升级）
+    （4）如果当前Deployment不稳定，则回滚到一个早先的Deployment版本。
+    （5）挂起或者恢复一个Deployment
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      name: frontend
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          tier: frontend
+        matchExpressions:
+          - {key: tier, operator: In, values: [frontend]}
+        template:
+          metadata:
+            labels:
+              app: app-demo
+              tier: frontend
+          spec:
+            containers:
+            - name: tomcat-demo
+              image: tomcat
+              imagePullPolicy: IfNotPresent
+              ports:
+              - containerPort: 8080
+12.Horizontal Pod Autoscaler(HPA)
+    HPA意思是Pod横向自动扩容，与之前的RC，Deployment一样，也属于一种Kubernetes资源对象。通过追踪分析RC控制的所有目标Pod的负载变化情况，来确定是否需要针对性地调整目标Pod的副本数量，这是HPA的实现原理，当前，HPA可以有以下两种方式作为Pod负载的度量指标
+    （1）CPUUtilizationPercentage
+    （2）应用程序自定义的度量指标，比如服务在每秒钟内的相应请求数量（TPS或者QPS）
+    CPUUtilizationPercentage是一个算数平均值，即目标Pod所有副本自身的CPU利用率的平均值。一个Pod自身的CPU利用率是该Pod当前CPU的使用量除以它的Pod Request的值，比如我们定义一个Pod的Pod Request为0.4，而当前Pod的CPU使用量为0.2，则它的CPU使用率为50%，如此一来，我们就可以算出来一个RC控制的所有Pod副本的CPU利用率的算数平均值了。如果某一时刻的CPUUtilizationPercentage的值超过80%，则意味着当前的Pod副本数很可能不足以支撑接下来更多的请求，需要进行动态扩容，而当请求高于峰时段过去后，Pod的CPU利用率又会降下来，此时对应的Pod副本数应该自动减少到一个合理的水平。
+    CPUUtilizationPercentage计算过程中使用到的Pod的CPU使用量通常是1分钟内的平均值，目前通过查询Heapster扩展组件得到这个值，所以需要安装部署Heapster，这样一来便增加了系统的复杂度和实施HPA特性的复杂度，因此，未来的计划是Kubernetes自身实现一个基础性能数据采集模块，从而更好的支持HPA和其他需要用到基础性能数据的功能模块。此外，我们也看到，如果目标Pod没有定义Pod Request的值，则无法使用CPUUtilizationPercentage来实现Pod横向自动扩容能力。
+    示例：
+    apiVersion: autoscaling/v1
+    kind: HorizontalPodAutoscaler
+    metadata:
+      name: php-apache
+      namespace: default
+    spec:
+      maxReplicas: 10
+      minReplicas: 1
+      scaleTargetRef:
+        kind: Deployment
+        name: php-apache
+      targetCPUUtilizationPercentage: 90
+13.Service
+    （1）Service也是Kubernetes里最核心的资源对象之一，Kubernetes里的每个Service其实就是我们经常提起的微服务架构中的“微服务”，之前我们所说的Pod，RC等资源对象其实都是为这节所说的“服务”--Kubernetes Service做“嫁衣”
+    Kubernetes，运行在每个Node上的kube-proxy进程其实就是一个智能软件负载均衡器，它负责把对Service的请求转发到后端的某个Pod实例上，并在内部实现服务的负载均衡与会话保持机制。但Kubernetes发明了一种很巧妙又影响深远的设计：Service不是共用一个负载均衡器的IP地址，而是每个Service分配一个全局唯一的虚拟IP地址，这个虚拟IP地址被称为Cluster IP。这样一来，每个服务就变成了具有唯一IP地址的通信节点，服务调度就变成了最基础的TCP网络通信问题。
+    我们知道，Pod的Endpoint地址会随着Pod的销毁和重新创建而发生改变，因为新Pod的IP地址与之前旧的Pod的不同。而Service一旦创建，Kubernetes就会自动为它分配一个可用的Cluster IP，而且在Service的整个生命周期内，它的Cluster IP是不会发生变化的。于是，服务发现这个棘手的问题在Kubernetes的架构里也得以轻松解决：只要Service的Name与Service的Cluster IP地址做一个DNS域名映射即可完美解决问题。
+    （2）Kubernetes的服务发现机制
+    任何分布式系统都会涉及“服务发现”这个基础问题，大部份分布式系统通过提供特定的API接口来实现服务发现功能，但这样做会导致平台的侵入行比较强，也增加了开发测试的困难。Kubernetes则采用了直观朴素的思路去解决这个棘手的问题
+    首先，每个Kubernetes中的Service都有一个唯一的Cluster IP以及唯一的名字，而名字是由开发者自己定义的，部署的时候也没有必要改变，所以完全可以固定在配置中。接下来的问题就是如何通过Service的名字找到对应Cluster IP
+    最早的时候Kubernetes采用Linux环境变量的方式解决这个问题，即每个Service生成一些对应的Linux环境变量（ENV），并在每个Pod的容器在启动时，自动注入这些环境变量。
+    考虑到环境变量的方式获取Service的IP与端口的方式仍然不太方便，不够直观，后来Kubernetes通过Add-On增值包的方式引入了DNS系统，把服务名作为DNS域名，这样一来，程序就可以直接使用服务名来建立通信连接了。目前Kubernetes上的大部分应用都已经采用了DNS这些新兴的服务发现机制。
+    （3）外部系统访问Service的问题
+    为了更加深入的理解和掌握Kubernetes,我们需要弄明白Kubernetes里的“三种IP”这个关键问题
+    a.Node IP: Node节点上的IP地址
+    b.Pod IP: Pod的IP地址
+    c.Cluster IP: Service的IP地址
+    首先Node IP是Kubernetes集群中每个节点饿物理网卡的IP地址，这是一个真实存在的物理网络，所有属于这个网络的服务器之间都能通过这个网络直接通信，不管他们中是否有部分节点不属于这个Kubernetes集群。这也表明了Kubernetes集群之外的节点访问Kubernetes集群之内的某个节点或TCP/IP服务的时候，必须要通过Node IP进行通信。
+    其次，Pod IP是每个Pod的IP地址，它是Docker Engine根据docker0网桥的IP地址段进行分配的，通常是一个虚拟的二层网络，前面我们说过，Kubernetes要求位于不同Node上的Pod能够彼此直接通信，所以Kubernetes里一个Pod里的容器访问另外一个Pod里的容器，就是通过Pod IP所在的虚拟二层网络进行通信的，而真实的TCP/IP流量则是通过Node IP所在的物理网卡流出的。
+    最后，我们说说Service的Cluster IP，它也是一个虚拟的IP，但更像是一个“伪造”的IP网络，原因有以下几点
+    a.Cluster IP仅仅作用于Kubernetes Service这个对象，并由Kubernetes管理和分配IP地址
+    b.Cluster IP无法被Ping，因为没有一个“实体网络对象”来响应
+    c.Cluster IP只能结合Service Port组成一个具体的通信端口，单独的Cluster IP不具备TCP/IP通信基础，并且他们属于Kubernetes集群这样一个封闭的空间，集群之外的节点如果要访问这个通信端口，需要做一些额外的工作
+    d.在Kubernetes集群之内，Node IP网，Pod IP网与Cluster IP网之间的通信，采用的是Kubernetes自己设计的一种编程方式的特殊路由规则，与我们所熟知的IP路由有很大不同。
+14.Volume
+    Volume是Pod中能够被多个容器访问的共享目录。Kubernetes的Volume概念，用途和目的与Docker的Volume比较类似，但两者不能等价。首先，Kubernetes中的Volume定义在Pod上，然后被一个Pod里的多个容器挂载到具体的文件目录下；其次，Kubernetes中的Volume与Pod的生命周期相同，但与容器的生命周期不相关，当容器终止或者重启时，Volume中的数据也不会丢失。最后Kubernetes支持多种类型的Volume，例如GlusterFS,Ceph等先进的分布式文件系统
+    Volume的使用也比较简单，在大多数情况下，我们先在Pod上声明一个Volume，然后在容器里引用该Volume并Mount到容器里的某个目录上。举例来说，我们要给之前Tomcat Pod增加一个名字为dataVol的Volume，并且Mount到容器/mydata-data目录上，则只要对Pod的定义文件做如下修改
+    template:
+      metadata:
+        labels:
+          app: app-demo
+          tier: frontend
+      spec:
+        volumes:
+          - name: datavol
+            emptyDir: {}
+        containers:
+        - name: tomcat-demo
+          image: tomcat
+          volumeMounts:
+            - mountPath: /mydata-data
+              name: dtavol
+          imagePullPolicy: IfNotPresent
+    Kubernetes提供了非常丰富的Volume类型
+    （1）emptyDir
+    （2）hostPath
+    （3）gcePersistentDisk
+    （4）awsElasticBlockStore
+    （5）NFS
+15.Persistent Volume
+    之前我们提到的Volume时定义在Pod上的，属于“计算资源”的一部分，而实际上，“网络存储”是相对独立的“计算资源”而存在的一种实体资源。比如在使用虚拟机的情况下，我们通常会定义一个网络存储，然后从中划出一个“网盘”并挂接到虚拟机上。Persistent Volume(PV)和与之相关联的Persistent Volume Claim（PVC）也起到了类似的作用。
+16.Namespace   
+    Namespace是Kubernetes系统中另一个非常重要的概念，Namespace在很多情况下用于实现多租户的资源隔离。Namespace通过将集群内部的资源对象“分配”到不同的Namespace中，形成逻辑上分组的不同项目，小组或者用户组，便于不同的分组在共享使用整个集群中的资源的同时还能被分别管理
+    Kubernetes集群在启动后，会创建一个名为“default”的Namespace，通过kubectl可以查看到
+    如果不特别指明Namespace，则用户创建的Pod,RC,Service都将被系统创建到这个默认名为default的Namespace中
+    Namespace定义很简单
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: development
+    一旦创建了Namespace,我们在创建资源对象的时候就可以指定资源对象属于哪个Namespace了
+17.Annotation
+    Annotation与Label类似，也使用key/value键值对的形式进行定义。不同的是Label具有严格的命名规范，它定义的是Kubernetes对象的元数据（metadata），并且用于Label Selector。而Annotation则是用户任意定义的“附加”信息，以便于外部工具进行查找，很多时候，Kubernetes的模块自身会通过Annotation的方式标记资源对象的一些特殊信息。
+    通常来讲，用Annotation来记录的信息如下
+    （1）build信息，release信息，Docker镜像信息等，例如时间戳，release id号，PR号，镜像hash值，docker registry地址等
+    （2）日志库，监控库，分析库等资源库的地址信息
+    （3）程序调试工具信息，例如工具名称，版本号等
+    （4）团队的联系信息，例如电话号码，负责人名称，网址等
+18.Master上的etcd,kube-apiserver,kube-controller-manager,kube-scheduler服务
+    （1）etcd服务
+    （2）kube-apiserver服务
+    （3）kube-controller-manager服务
+    （4）kube-scheduler服务
+19.Node上的kubelet,kube-proxy服务
+    （1）kubelet服务
+    （2）kube-proxy服务
+20.Pod的基本用法
+    在使用Docker时，可以使用docker run命令创建并启动一个容器。而在Kubernetes系统中对长时间运行的容器的要求是：其主程序需要一直在前台执行。如果我们创建的Docker镜像启动命令是后台执行程序，例如：
+        nohub ./start.sh &
+    则在kubelet创建包含这个容器的Pod之后运行完该命令，即认为Pod执行结束，立刻销毁该Pod。如果为该Pod定义了ReplicationController,则系统将会监控到该Pod已经终止，之后根据RC定义中Pod的replicas副本数量生成一个新的Pod。而一旦创建出新的Pod，就将在执行完启动命令后，陷入无限循环过程中。这就是Kubernetes需要我们自己创建Docker镜像以一个前台命令作为启动命令的原因。
+    对于无法改造为前台执行的应用，也可以使用开源工具Supervisor辅助进行前台运行功能。Supervisor提供了一种可以同时启动多个后台应用，并保持Supervisor自身在前台执行的机制，可以满足Kubernetes对容器的启动要求。
+    接下来对Pod对容器的封装和应用进行说明，Pod的基本用法为：Pod可以由1个或多个容器组合而成。例如：
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: redis-php
+      labels:
+        name: redis-php
+    spec:
+      containers:
+      - name: frontend
+        image: kubeguide/guestbook-php-frontend:localredis
+        ports:
+        - containerPort: 80
+      - name: redis
+        image: kubeguide/redis-master
+        ports:
+        - containerPort: 6379
+    静态Pod：
+    静态Pod是由kubelet进行管理的仅存在于特定Node上的Pod。它们不能通过API Server进行管理，无法与ReplicationController，Deployment或者DaemonSet进行关联，并且kubelet也无法对他们进行健康检查。静态Pod总是由kubelet进行创建，并且总是在kubelet所在的Node上运行。
+    创建静态Pod有两种方式：配置文件或者HTTP方式
+    （1）配置文件方式：
+        首先，需要设置kubelet的启动参数为"--config"，指定kubelet需要监控的配置文件所在的目录，kubelet会定期扫描该目录，并根据该目录中的.yaml或者.json文件进行创建操作
+    （2）
+21.Pod容器共享Volume
+    在同一个Pod中的多个容器能够共享Pod级别的存储卷Volume。Volume可以定义为各种类型，多个容器各自进行挂载操作，将一个Volume挂载为容器内部需要的目录
+22.Pod的配置管理
+    应用部署的一个最佳实践是将应用所需的配置信息与程序进行分离，这样可以使得应用程序更好地复用，通过不同的配置也能实现更灵活的功能。将应用打包为容器镜像后，可以通过环境变量或外挂文件的方式在创建容器时进行配置注入，但在大规模容器集群的环境中，对多个容器进行不同的配置将变得非常复杂。Kubernetes v1.2版本提供了一种统一的集群配置管理方案--ConfigMap。
+    （1）ConfigMap：容器应用的配置管理
+    ConfigMap供容器使用的典型用法如下：
+    a.生成为容器内的环境变量
+    b.设置容器启动命令的启动参数（需设置为环境变量）
+    c.以Volume的形式挂载为容器内部的文件或目录
+    ConfigMap以一个或多个key:value的形式保存在Kubernetes系统中供应用使用，既可以用于表示一个变量的值（例如apploglevel=info），也可以用于表示一个完整的配置文件的内容（例如：server.xml=<?xml...>...）
+    可以通过yaml配置文件或者直接使用kubectl create configmap命令的方式进行创建ConfigMap
+    （2）ConfigMap的创建：yaml文件方式
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: cm-appvars
+    data:
+      apploglevel: info
+      appdatadir: /var/data
+    （3）ConfigMap的创建：kubectl命令行方式
+    不使用yaml文件，直接通过kubectl create configmap也可以创建ConfigMap，可以使用参数--from-file或--from-literal指定内容，并且可以在一行命令中指定多个参数
+    a.通过--from-file参数从文件中进行创建，可以指定key的名称，也可以在一个命令行中创建包含多个key的ConfigMap,语法为：
+    kubectl create configmap NAME --from-file=[key=]source --from-file=[key=]source
+    b.通过--from-file参数从目录中进行创建，该目录下的每个配置文件名都被设置为key,文件的内容被设置为value，语法为：
+    kubectl create configmap NAME --from-file=config-files-dir
+    c.--from-literal从文件中进行创建，直接将key#=value#创建为ConfigMap的内容，语法为：
+    kubectl create configmap NAME --from-literal=key1=value1 --from-literal=key2=value2
+    （4）ConfigMap的使用有以下两种方式
+    a.通过环境变量获取ConfigMap中的内容
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: cm-test-pod
+    spec:
+      containers:
+      - name: cm-test
+        image: busybox
+        command: ["/bin/sh", "-c", "env | grep APP"]
+        env:
+        - name: APPLOGLEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: cm-appvars
+              key: apploglevel
+        - name: APPDATADIR
+          valueFrom:
+            configMapKeyRef:
+              name: cm-appvars
+              key: appdatadir
+      restartPolicy: Never
+    b.通过Volume挂在的方式将ConfigMap中的内容挂载为容器内部文件或目录
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: cm-test-app
+    spec:
+      containers:
+      - name: cm-test-app
+        image: kubeguide/tomcat-app:v1
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: serverxml
+          mountPath: /configfiles
+      volumes:
+      - name: serverxml
+        configMap:
+          name: cm-appconfigfiles
+          items:
+          - key: key-serverxml
+            path: server.xml
+          - key: key-loggingproperties
+            path: logging.properties
+    （5）使用ConfigMap的限制条件
+    a.ConfigMap必须在Pod之前创建
+    b.ConfigMap也可以定义为属性某个Namespace。只有处于相同Namespaces中的Pod可以引用它
+    c.ConfigMap中的配额管理还未能实现
+    d.kubelet只支持可以被API Server管理的Pod使用ConfigMap。
+    e.在Pod对ConfigMap进行挂载操作时，容器内部只能挂载为“目录”，无法挂载为“文件”
+23.Pod生命周期和重启策略
+    状态：
+        Pending:API Server已经创建该Pod，但Pod内还有一个或多个容器的镜像没有创建，包括正在下载镜像的过程
+        Running:Pod内所有容器均已创建，且至少有一个容器处于运行状态，正在启动状态或者正在重启状态
+        Succeeded:Pod内所有容器均已成功执行退出，且不会重启
+        Failed:Pod内所有容器均已退出，但至少有一个容器退出为失败状态
+        Unknown:由于某种原因无法获取该Pod的状态，可能由于网络通信不畅导致
+    重启策略（RestartPolicy）：默认值为Always
+        Always:当容器失效时，由kubelet自动重启该容器
+        OnFailure:当容器终止运行且退出码不为0时，由kubelet自动重启该容器
+        Never:不论容器运行状态如何，kubelet都不会重启该容器
+    kubelet重启失效容器的时间间隔以sync-frequency乘以2n来计算，例如1，2，4，8倍等，最长延时为5分钟，并且在成功重启后的10分钟后重置该时间
+24.Pod健康检查
+    对Pod健康状态检查可以通过两类探针来检查：LivenessProbe和ReadinessProbe
+    LivenessProbe探针：
+        用于判断容器是否存活状态（running状态），如果LivenessProbe探针探测到容器不健康，则kubelet将杀掉该容器，并根据容器的重启策略做相应的处理，如果一个容器不包含LivenessProbe探针，那么kubelet认为该容器的LivenessProbe探针返回值永远为“Success”
+    ReadinessProbe探针：
+        用于判断容器是否启动完成（ready状态），可以接收请求。如果ReadinessProbe探针检测到失败，则Pod的状态将被修改。Endpoint Controller将从Service的Endpoint中删除包含该容器所在Pod的Endpoint
+25.Pod调度    
+    在Kubernetes系统中，Pod在大部分场景下都只是容器的载体而已，通常需要通过RC，Deployment，DaemonSet，Job等对象来完成Pod的调度与自动控制功能
+    （1）RC，Deployment：全自动调度
+        RC的主要功能之一就是自动部署一个容器应用的多个副本，以及持续监控副本的数量，在集群内始终维持用户指定的副本数量。
+    （2）DaemonSet：特定场景调度
+        DaemonSet时Kubernetes1.2新增的一种资源对象，用于管理在集群中每个Node上仅运行一份Pod的副本实例
+    （3）Job：批处理调度
+26.Pod的滚动升级
+    滚动升级通过执行kubectl rolling-update命令一键完成，该命令创建一个新的RC，然后自动控制旧的RC中Pod副本的数量逐渐减少到0，同时新的RC中的Pod副本数量从0递增到目标值，最终实现了Pod的升级。需要注意的是，系统要求新的RC需要与旧的RC在相同的命名空间内。
+    kubectl rolling-update old-rcname -f v2.yaml
+27.Service
+    Service是Kubernetes最核心的概念，通过创建Service，可以为一组具有相同功能的容器应用提供一个统一的入口地址，并且将请求进行负载分发到后端的各个容器应用上。
+28.Service基本用法
+    一般来说，对外提供服务的应用程序需要通过某种机制来实现，对于容器应用最简便的方法就是通过TCP/IP机制以及监听IP和端口号来实现。例如，我们定义一个提供web服务的RC，由两个tomcat容器副本组成，每个容器通过containerPort设置提供服务的端口号为8080:
+    webapp-rc.yaml
+    apiVersion: v1
+    kind: ReplicationController
+    metadata:
+      name: webapp
+    spec:
+      replicas: 2
+      template:
+        metadata:
+          name: webapp
+          labels:
+            app: webapp
+        spec:
+          containers:
+          - name: webapp
+            image: tomcat
+            ports:
+            - containerPort: 80
+    直接通过Pod的IP地址和端口号可以访问容器应用，但是Pod的IP地址是不可靠的，例如当Pod所在的Node发生故障时，Pod将被Kubernetes重新调度到另一台Node上进行启动，Pod的IP地址将发生变化。更重要的是，如果容器应用本身是分布式部署方式，通过多个实例共同提供服务，就需要在这些实例的前端设置一个负载均衡器来实现请求的转发，Kubernetes中的Service就是设计出来用于解决这些问题的核心组件    
+    （1）通过kubectl暴露
+        kubectl expose rc webapp
+    （2）通过yaml
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: webapp
+        spec:
+          ports:
+          - port: 8081
+            targetPort: 8080
+          selector:
+            app: webapp
+    对Service的访问将被分发到Pod容器中，目前Kubernetes提供了两种负载分发策略：RoundRobin和SessionAffinity
+    （1）RoundRobin：
+        轮询模式，即轮询将请求转发到后端各个Pod上
+    （2）SessionAffinity：
+        基于客户端IP地址进行会话保持的模式，即第一次将某个客户端发起的请求转发到某个Pod上，之后相同的客户端发起的请求都将被转发到相同的Pod上
+29.集群外部访问Pod或Service
+    由于Pod和Service是Kubernetes集群范围内的虚拟概念，所以集群外的客户端系统无法通过Pod的IP地址或这Service的虚拟IP地址和虚拟端口号访问到它们。为了能让外部客户端可以访问这些服务，可以将Pod或者Service的端口号映射到宿主机，以使得客户端可以通过物理机访问容器应用。
+    （1）将容器应用的端口号映射到物理机
+        a. 通过设置容器级别的hostPort，将容器应用的端口号映射到物理机上
+            pod-hostport.yarml
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: webapp
+              labels:
+                app: webapp
+            spec:
+              containers:
+              - name: webapp
+                image: tomcat
+                ports:
+                - containerPort: 8080
+                  hostPort: 8081
+        b.通过设置Pod级别的hostNetwork=true,该Pod中所有容器的端口号都将被直接映射到物理机上。设置hostNetwork=true是需要注意，在容器的ports定义部分如果不指定hostPort，则默认hostPort等于containerPort，如果指定了hostPort，则hostPort必须等于containerPort的值
+            pod-hostnetwork.yaml
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: webapp
+              labels:
+                app: webapp
+            spec:
+              hostNetwork: true
+              containers
+              - name: webapp
+                image: tomcat
+                imagePullPolicy: Never
+                ports:
+                - containerPort: 8080
+    （2）将Service的端口号映射到物理机
+        a.通过设置nodePort映射到物理机，同时设置Service的类型为NodePort
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: webapp
+            spec:
+              type: NodePort
+              ports:
+              - port: 8080
+                targetPort: 8080
+                nodePort: 8081
+              selector:
+                app: webapp
+        b.通过设置LoadBalancer映射到云服务商提供的LoadBalancer地址。这种用法仅用于在公有云服务提供商的云平台上设置Service的场景。
+            apiVersion: v1
+            kind: Service
+            metadata:
+              name: my-service
+            spec:
+              selector:
+                app: MyApp
+              ports:
+              - protocol: TCP
+                port: 80
+                targetPort: 9376
+                nodePort: 30061
+              clusterIP: 10.0.171.239
+              loadBalancerIP: 78.11.24.19
+              type: LoadBalancer
+            status:
+              loadBalancer:
+                ingress:
+                - ip: 146.148.47.155
+30.DNS服务搭建
+    为了能够通过服务名字在集群内部进行服务的互相访问，需要创建一个虚拟的DNS服务来完成服务名到ClusterIP的解析。
+    Kubernetes提供的虚拟DNS服务名为skydns，由四个组件组成
+    （1）etcd：DNS存储
+    （2）kube2sky：将Kubernetes Master中的Service注册到etcd
+    （3）skyDNS：提供DNS域名解析服务
+    （4）healthz：提供对skydns服务的健康检查功能
+    http://kubernetes.io/third_party/swagger-ui
+31.Kubernetes集群管理
+    （1）Node的隔离与恢复
+        在硬件升级，硬件维护等情况下，我们需要将某些Node进行隔离，脱离Kubernetes集群的调度范围。Kubernetes提供了一种机制，既可以将Node纳入调度范围，也可以将Node脱离调度范围。
+        a.通过配置文件unschedule_node.yaml
+            apiVersion: v1
+            kind: Node
+            metadata:
+              name: k8s-node-1
+              labels:
+                kubernetes.io/hostname: k8s-node-1
+            spec:
+              unschedulable: true
+            >kubectl replace -f unschedule_node.yaml
+        b.通过命令
+            >kubectl patch node k8s-node-1 -p '{"spec": {"unschedulable": true}'
+        需要注意的是，将某个Node脱离调度范围时，在其上运行的Pod并不会自动停止，管理员需要手动停止该Node上运行的Pod
+    （2）Node扩容
+        在实际生产系统中会经常遇到服务器容量不足的情况，这时就需要购买新的服务器，然后将应用系统进行水平扩展来完成对系统的扩容。在Kubernetes集群中，一个新的Node的加入是非常简单的。在新的Node节点上安装Docker，kubelet和kube-proxy服务，然后配置kubelet和kube-proxy的启动参数，将Master URL指定为当前Kubernetes集群Master的地址，最后启动这些服务。通过kubelet默认的自动注册机制，新的Node将会自动加入到现有的Kubernetes集群中，Kubenetes Master在接受了新的Node注册之后，会自动将其纳入到当前集群的调度范围内，在之后创建容器时，就可以向新的Node进行调度了。
+    （3）更新资源对象的Label
+        Label作为用户可灵活定义的对象属性，正在运行的资源对象上，仍然可以随时通过kubectl label命令对其进行增加，修改，删除等操作
+    （4）Namespace：集群环境共享与隔离
+        在一个组织内部，不同的工作组可以在同一个Kubernetes集群中工作，Kubernetes通过命名空间和Context的设置来对不同的工作组进行区分，使得他们既可以共享同一个Kubernetes集群服务，也能够互不干扰。
+        a.创建namespace
+            -------------------
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: development
+            -------------------
+            apiVersion: v1
+            kind: Namespace
+            metadata:
+              name: production
+        b.定义Context（运行环境）
+            kubectl config set-cluster kubenetes-cluster --server=https://192.168.1.128:8080
+            kubectl config set-context ctx-dev --namespace=development --cluster=kubernetes-cluster --user=dev
+            kubectl config set-context ctx-prod --namespace=production --cluster=kubernetes-cluster --user=prod
+            kubectl config view
+        c.设置工作组在特定的Context环境中工作
+            使用kubectl config user-context <context_name>命令来设置当前运行的环境
+            kubectl config use-context ctx-dev
+    （5）Kubernetes资源管理
+        a.计算资源管理
+            在配置Pod的时候，我们可以为其中的每个容器指定需要使用的计算资源（CPU和内存）。
+            计算资源的配置分为两种：一种是资源请求（Resource Requests，简称Requests），表示容器希望被分配到的，可完全保证的资源量，Requests的值会提供给Kubernetes调度器（Kubernetes Scheduler）以便于优化基于自愿请求的容器调度：另外一种是资源限制（Resource Limits，简称Limits），Limits是容器最多能使用到的资源量的上限，这个上限会影响节点上发生资源竞争时的解决策略。
+            当前版本的Kubernetes中，计算资源的资源类型分为两种：CPU和内存。这两种资源类型都有一个基本单位：对于CPU而言，基本单位是核心数（Cores）；而内存的基本单位是字节数（Bytes）。CPU和内存一起构成了目前Kubernetes中的计算资源
+        b.资源的配置范围管理
+            默认情况下，Kubernetes的Pod会以无限制的CPU和内存运行。这也意味着Kubernetes系统中任何的Pod都可以使用其所在节点上的所有可用的CPU和内存。通过配置Pod的计算资源Requests和Limits，我们可以限制Pod的资源使用，但对于Kubernetes集群管理员而言，配置每一个Pod的Requests和Limits是繁琐且限制性过强的。更多的时候，我们需要的是对集群内Request和Limits的配置做一个全局的统一的限制
+            
+                
+                
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+          
+          
